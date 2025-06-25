@@ -13,8 +13,43 @@ local isDir(file) = std.length(std.findSubstr('.', file)) == 0;
 
 local ext(file) = '.%s' % std.split(file, '.')[1];
 
+local generators = {
+  '.yml'(data): std.manifestYamlDoc(data, indent_array_in_object=true, quote_keys=false),
+  '.yaml'(data): self['.yml'](data),
+  '.htm'(data): '<!doctype html>' + std.manifestXmlJsonml(data),
+  '.html'(data): self['.htm'](data),
+};
+
+local watchScript(config) = std.manifestXmlJsonml(
+  [
+    'script',
+    |||
+      (function() {
+          const socket = new WebSocket('ws://localhost:%(port)s/_reload');
+          socket.addEventListener('message', function(event) {
+              if (event.data === 'reload') {
+                  window.location.reload();
+              }
+          });
+          socket.addEventListener('error', function(err) {
+              console.error('WebSocket error:', err);
+          });
+          socket.addEventListener('close', function() {
+              console.warn('Live-reload connection closed.');
+          });
+      })();
+    ||| % config.server,
+  ]
+);
+
+local watchGenerators(config) = generators {
+  '.htm'(data): super['.htm'](data) + watchScript(config),
+};
+
 {
   flattenObject: flattenObject,
   isDir: isDir,
   ext: ext,
+  generators: generators,
+  watchGenerators: watchGenerators,
 }

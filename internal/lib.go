@@ -2,7 +2,9 @@ package internal
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
+	"path/filepath"
 
 	"github.com/google/go-jsonnet"
 	"github.com/marcbran/gensonnet/internal/fun"
@@ -33,10 +35,14 @@ func NewLib(
 
 func (l Lib) vm() *jsonnet.VM {
 	vm := jsonnet.MakeVM()
+	var paths []string
+	for _, p := range l.jpath {
+		paths = append(paths, filepath.Join(l.manifestDir, p))
+	}
 	vm.Importer(jsonnext.CompoundImporter{
 		Importers: []jsonnet.Importer{
 			&jsonnext.FSImporter{Fs: lib},
-			&jsonnet.FileImporter{JPaths: l.jpath},
+			&jsonnet.FileImporter{JPaths: paths},
 		},
 	})
 	vm.NativeFunction(fun.FormatJsonnet())
@@ -55,9 +61,15 @@ func (l Lib) render() (map[string]string, error) {
 	return files, nil
 }
 
-func (l Lib) renderPath(path string) (string, error) {
+func (l Lib) renderPath(path string, config ServeConfig, watch bool) (string, error) {
 	vm := l.vm()
 	vm.TLAVar("path", path)
+	jsonConfig, err := json.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+	vm.TLACode("config", string(jsonConfig))
+	vm.TLACode("watch", fmt.Sprintf("%t", watch))
 	vm.StringOutput = true
 
 	file, err := vm.EvaluateFile("./lib/render_path.libsonnet")

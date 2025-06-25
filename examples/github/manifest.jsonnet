@@ -128,11 +128,6 @@ local directory = {
   },
 };
 
-local generators = {
-  '.yml'(data): std.manifestYamlDoc(data, indent_array_in_object=true, quote_keys=false),
-};
-
 {
   directory: directory,
-  generators: generators,
 }
