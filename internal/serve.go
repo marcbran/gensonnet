@@ -144,7 +144,12 @@ func runServer(ctx context.Context, config ServeConfig, restartBroadcaster *Broa
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(file))
+		_, err = w.Write([]byte(file))
+		if err != nil {
+			log.WithError(err).
+				Error("failed to write response")
+			return
+		}
 	})
 
 	mux.HandleFunc("/_reload", func(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +159,13 @@ func runServer(ctx context.Context, config ServeConfig, restartBroadcaster *Broa
 				Error("failed to upgrade connection to websocket")
 			return
 		}
-		defer conn.Close()
+		defer func() {
+			err := conn.Close()
+			if err != nil {
+				log.WithError(err).
+					Error("failed to close websocket connection")
+			}
+		}()
 
 		restarts, unsubscribe := restartBroadcaster.Subscribe()
 		defer unsubscribe()
