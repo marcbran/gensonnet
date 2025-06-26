@@ -1,8 +1,16 @@
-test:
+test-jsonnet:
     #!/usr/bin/env bash
     set -eu
 
     jsonnet-kit test
+
+test-go:
+    #!/usr/bin/env bash
+    set -eu
+
+    go test -v -cover -timeout=120s -parallel=10 ./...
+
+test: test-jsonnet test-go
 
 lint:
     #!/usr/bin/env bash
@@ -20,10 +28,18 @@ it: build-dev
     set -eu
     ./dist/darwin_darwin_arm64_v8.0/gensonnet it
 
-dev:
+build: test lint
     #!/usr/bin/env bash
     set -eu
-    docker compose -f debug/docker-compose.yml up -d
+
+    go build -v ./...
+
+install: build
+    #!/usr/bin/env bash
+    set -eu
+
+    go install -v ./...
+
 
 check-git-state:
     #!/usr/bin/env bash

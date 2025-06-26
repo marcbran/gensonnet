@@ -5,7 +5,7 @@ local exampleTests = {
   tests: [
     {
       name: 'github/dependabot.yml',
-      input:: [import '../../examples/github/manifest.jsonnet', 'dependabot.yml'],
+      input:: [import '../../examples/github/manifest.jsonnet', 'dependabot.yml', {}, false],
       expected: |||
         updates:
           - directory: "/"
@@ -21,7 +21,7 @@ local exampleTests = {
     },
     {
       name: 'github/workflows/test.yml',
-      input:: [import '../../examples/github/manifest.jsonnet', 'workflows/test.yml'],
+      input:: [import '../../examples/github/manifest.jsonnet', 'workflows/test.yml', {}, false],
       expected: |||
         jobs:
           build:
@@ -59,7 +59,7 @@ local exampleTests = {
 };
 
 {
-  output(input): renderPath(input[0], input[1]) + '\n',
+  output(input): renderPath(input[0], input[1], input[2], input[3]) + '\n',
   tests: [
     exampleTests,
   ],

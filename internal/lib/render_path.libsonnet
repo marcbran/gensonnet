@@ -6,7 +6,7 @@ local renderPath(manifest, path, config, watch) =
   local file = segments[0];
   if lib.isDir(file)
   then
-    renderPath(manifest { directory: manifest.directory[file] }, segments[1:], watch)
+    renderPath(manifest { directory: manifest.directory[file] }, segments[1:], config, watch)
   else
     local generate = std.get(
       libGenerator + std.get(manifest, 'generators', {}),
