@@ -1,12 +1,11 @@
 local lib = import './lib.libsonnet';
 
-local renderPath(manifest, path, config, watch) =
-  local libGenerator = if watch then lib.watchGenerators(config) else lib.generators;
-  local segments = if std.type(path) == 'string' then std.split(path, '/') else path;
-  local file = segments[0];
+local renderPath(manifest, path, config, watch, segmentIndex=0) =
+  local libGenerator = if watch then lib.watchGenerators(path, config) else lib.generators;
+  local file = std.split(path, '/')[segmentIndex];
   if lib.isDir(file)
   then
-    renderPath(manifest { directory: manifest.directory[file] }, segments[1:], config, watch)
+    renderPath(manifest { directory: manifest.directory[file] }, path, config, watch, segmentIndex + 1)
   else
     local generate = std.get(
       libGenerator + std.get(manifest, 'generators', {}),

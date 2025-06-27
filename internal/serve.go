@@ -28,7 +28,7 @@ type ServerConfig struct {
 }
 
 func Serve(ctx context.Context, config ServeConfig) error {
-	restartCh := make(chan struct{}, 1)
+	reloadCh := make(chan struct{}, 1)
 	broadcaster := Broadcaster{}
 
 	g, gCtx := errgroup.WithContext(ctx)
@@ -37,7 +37,7 @@ func Serve(ctx context.Context, config ServeConfig) error {
 		watchCtx, watchCancel := context.WithCancel(gCtx)
 		defer watchCancel()
 
-		err := watchFiles(watchCtx, config.Lib.ManifestDir, restartCh)
+		err := watchFiles(watchCtx, config.Lib.ManifestDir, reloadCh)
 		if err != nil && !errors.Is(err, context.Canceled) {
 			return err
 		}
@@ -48,7 +48,7 @@ func Serve(ctx context.Context, config ServeConfig) error {
 		publishCtx, publishCancel := context.WithCancel(gCtx)
 		defer publishCancel()
 
-		err := broadcaster.Publish(publishCtx, restartCh)
+		err := broadcaster.Publish(publishCtx, reloadCh)
 		if err != nil && !errors.Is(err, context.Canceled) {
 			return err
 		}
@@ -115,7 +115,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func runServer(ctx context.Context, config ServeConfig, restartBroadcaster *Broadcaster) error {
+func runServer(ctx context.Context, config ServeConfig, reloadBroadcaster *Broadcaster) error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -153,6 +153,13 @@ func runServer(ctx context.Context, config ServeConfig, restartBroadcaster *Broa
 	})
 
 	mux.HandleFunc("/_reload", func(w http.ResponseWriter, r *http.Request) {
+		p := r.URL.Query().Get("path")
+		if p == "" {
+			log.Error("path is required")
+			http.Error(w, "path is required", http.StatusBadRequest)
+			return
+		}
+
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.WithError(err).
@@ -167,18 +174,28 @@ func runServer(ctx context.Context, config ServeConfig, restartBroadcaster *Broa
 			}
 		}()
 
-		restarts, unsubscribe := restartBroadcaster.Subscribe()
+		reloads, unsubscribe := reloadBroadcaster.Subscribe()
 		defer unsubscribe()
 
 		for {
 			select {
 			case <-r.Context().Done():
 				return
-			case _, ok := <-restarts:
+			case _, ok := <-reloads:
 				if !ok {
 					return
 				}
-				err := conn.WriteMessage(websocket.TextMessage, []byte("reload"))
+
+				lib := NewLib(config.Lib)
+				_, err := lib.renderPath(p, config, true)
+				if err != nil {
+					log.WithError(err).
+						WithField("path", p).
+						Warn("failed to render path")
+					continue
+				}
+
+				err = conn.WriteMessage(websocket.TextMessage, []byte(("reload")))
 				if err != nil {
 					log.WithError(err).
 						Error("failed to write websocket message")
@@ -211,7 +228,7 @@ func runServer(ctx context.Context, config ServeConfig, restartBroadcaster *Broa
 	return nil
 }
 
-func watchFiles(ctx context.Context, dir string, restartCh chan<- struct{}) error {
+func watchFiles(ctx context.Context, dir string, reloadCh chan<- struct{}) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return err
@@ -259,7 +276,7 @@ func watchFiles(ctx context.Context, dir string, restartCh chan<- struct{}) erro
 					log.WithField("file", event.Name).
 						Info("file changed, triggering reload")
 					select {
-					case restartCh <- struct{}{}:
+					case reloadCh <- struct{}{}:
 					default:
 					}
 				}

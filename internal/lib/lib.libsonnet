@@ -20,12 +20,12 @@ local generators = {
   '.html'(data): self['.htm'](data),
 };
 
-local watchScript(config) = std.manifestXmlJsonml(
+local watchScript(path, config) = std.manifestXmlJsonml(
   [
     'script',
     |||
       (function() {
-          const socket = new WebSocket('ws://localhost:%(port)s/_reload');
+          const socket = new WebSocket('ws://localhost:%(port)s/_reload?path=%(path)s');
           socket.addEventListener('message', function(event) {
               if (event.data === 'reload') {
                   window.location.reload();
@@ -38,12 +38,15 @@ local watchScript(config) = std.manifestXmlJsonml(
               console.warn('Live-reload connection closed.');
           });
       })();
-    ||| % config.server,
+    ||| % {
+      path: path,
+      port: config.server.port,
+    },
   ]
 );
 
-local watchGenerators(config) = generators {
-  '.htm'(data): super['.htm'](data) + watchScript(config),
+local watchGenerators(path, config) = generators {
+  '.htm'(data): super['.htm'](data) + watchScript(path, config),
 };
 
 {
