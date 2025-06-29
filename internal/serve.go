@@ -271,14 +271,11 @@ func watchFiles(ctx context.Context, dir string, reloadCh chan<- struct{}) error
 				return nil
 			}
 			if event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Remove) != 0 {
-				ext := filepath.Ext(event.Name)
-				if ext == ".jsonnet" || ext == ".libsonnet" {
-					log.WithField("file", event.Name).
-						Info("file changed, triggering reload")
-					select {
-					case reloadCh <- struct{}{}:
-					default:
-					}
+				log.WithField("file", event.Name).
+					Info("file changed, triggering reload")
+				select {
+				case reloadCh <- struct{}{}:
+				default:
 				}
 			}
 		case err, ok := <-watcher.Errors:

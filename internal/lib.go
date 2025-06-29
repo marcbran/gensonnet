@@ -46,6 +46,7 @@ func (l Lib) vm() *jsonnet.VM {
 		},
 	})
 	vm.NativeFunction(fun.FormatJsonnet())
+	vm.NativeFunction(fun.ParseMarkdown())
 	vm.TLACode("manifest", fmt.Sprintf("import '%s/manifest.jsonnet'", l.manifestDir))
 	return vm
 }

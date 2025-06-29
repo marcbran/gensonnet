@@ -40,6 +40,14 @@ install: build
 
     go install -v ./...
 
+push-jsonnet: test lint
+    #!/usr/bin/env bash
+    set -eu
+
+    cd pkg/gensonnet/lib
+    just release
+
+push: push-jsonnet
 
 check-git-state:
     #!/usr/bin/env bash
