@@ -11,6 +11,7 @@ local defaults(manifestDir) = {
     server: {
       port: 8000,
       directoryIndex: 'index.html',
+      staticBaseDir: manifestDir,
     },
     lib: {
       manifestDir: manifestDir,

@@ -26,6 +26,11 @@ local directory = {
       lib+: {
         jpath: ['vendor'],
       },
+      server+: {
+        staticFiles+: {
+          static: 'static',
+        },
+      },
     },
   },
 }

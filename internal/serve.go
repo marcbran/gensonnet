@@ -23,8 +23,10 @@ type ServeConfig struct {
 }
 
 type ServerConfig struct {
-	Port           int    `json:"port"`
-	DirectoryIndex string `json:"directoryIndex"`
+	Port           int               `json:"port"`
+	DirectoryIndex string            `json:"directoryIndex"`
+	StaticBaseDir  string            `json:"staticBaseDir"`
+	StaticFiles    map[string]string `json:"staticFiles"`
 }
 
 func Serve(ctx context.Context, config ServeConfig) error {
@@ -117,6 +119,35 @@ var upgrader = websocket.Upgrader{
 
 func runServer(ctx context.Context, config ServeConfig, reloadBroadcaster *Broadcaster) error {
 	mux := http.NewServeMux()
+
+	for endpoint, filePath := range config.Server.StaticFiles {
+		if !strings.HasPrefix(endpoint, "/") {
+			endpoint = "/" + endpoint
+		}
+		filePath = filepath.Join(config.Server.StaticBaseDir, filePath)
+
+		stat, err := os.Stat(filePath)
+		if err != nil {
+			log.WithError(err).
+				WithField("file", filePath).
+				Error("failed to stat static file/directory")
+			continue
+		}
+
+		if stat.IsDir() {
+			mux.Handle(endpoint+"/", http.StripPrefix(endpoint, http.FileServer(http.Dir(filePath))))
+			log.WithField("endpoint", endpoint).
+				WithField("directory", filePath).
+				Info("registered static directory handler")
+		} else {
+			mux.HandleFunc(endpoint, func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, filePath)
+			})
+			log.WithField("endpoint", endpoint).
+				WithField("file", filePath).
+				Info("registered static file handler")
+		}
+	}
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.WithField("path", r.URL.Path).
