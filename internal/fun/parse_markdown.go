@@ -46,7 +46,31 @@ func convert(node mdast.Node, source []byte) any {
 			convert(image.FirstChild(), source),
 		}
 	case mdast.KindText:
-		return string(node.(*mdast.Text).Value(source))
+		t := node.(*mdast.Text)
+		if t.SoftLineBreak() {
+			return []any{
+				tag(t),
+				string(t.Value(source)),
+				[]any{"SoftLineBreak"},
+			}
+		}
+		if t.HardLineBreak() {
+			return []any{
+				tag(t),
+				string(t.Value(source)),
+				[]any{"HardLineBreak"},
+			}
+		}
+		return string(t.Value(source))
+	case mdast.KindEmphasis:
+		emphasis := node.(*mdast.Emphasis)
+		res := convertRec(node, source)
+		tag := "Em"
+		if emphasis.Level == 2 {
+			tag = "Strong"
+		}
+		res.([]any)[0] = tag
+		return res
 	case mdast.KindCodeBlock:
 		block := node.(*mdast.CodeBlock)
 		return []any{
@@ -61,15 +85,19 @@ func convert(node mdast.Node, source []byte) any {
 			string(block.BaseBlock.Lines().Value(source)),
 		}
 	default:
-		res := []any{tag(node)}
-		child := node.FirstChild()
-		for child != nil {
-			converted := convert(child, source)
-			res = append(res, converted)
-			child = child.NextSibling()
-		}
-		return res
+		return convertRec(node, source)
 	}
+}
+
+func convertRec(node mdast.Node, source []byte) any {
+	res := []any{tag(node)}
+	child := node.FirstChild()
+	for child != nil {
+		converted := convert(child, source)
+		res = append(res, converted)
+		child = child.NextSibling()
+	}
+	return res
 }
 
 func tag(node mdast.Node) string {

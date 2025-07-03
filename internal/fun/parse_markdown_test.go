@@ -26,6 +26,16 @@ func TestParseMarkdown(t *testing.T) {
 			expected: `["Document",["Paragraph","Hello, World","!"]]`,
 		},
 		{
+			name:     "soft line break",
+			markdown: "Hello, World!\nWelcome to my website!",
+			expected: `["Document",["Paragraph","Hello, World",["Text","!",["SoftLineBreak"]],"Welcome to my website","!"]]`,
+		},
+		{
+			name:     "hard line break",
+			markdown: "Hello, World!  \nWelcome to my website!",
+			expected: `["Document",["Paragraph","Hello, World",["Text","!",["HardLineBreak"]],"Welcome to my website","!"]]`,
+		},
+		{
 			name:     "inline code",
 			markdown: "This is `inline code` text",
 			expected: `["Document",["Paragraph","This is ",["CodeSpan","inline code"]," text"]]`,
@@ -33,7 +43,7 @@ func TestParseMarkdown(t *testing.T) {
 		{
 			name:     "paragraph with formatting",
 			markdown: "This is **bold** and *italic* text.",
-			expected: `["Document",["Paragraph","This is ",["Emphasis","bold"]," and ",["Emphasis","italic"]," text."]]`,
+			expected: `["Document",["Paragraph","This is ",["Strong","bold"]," and ",["Em","italic"]," text."]]`,
 		},
 		{
 			name:     "link",
@@ -53,7 +63,7 @@ func TestParseMarkdown(t *testing.T) {
 		{
 			name:     "blockquote",
 			markdown: "> This is a blockquote\n> with multiple lines",
-			expected: `["Document",["Blockquote",["Paragraph","This is a blockquote","with multiple lines"]]]`,
+			expected: `["Document",["Blockquote",["Paragraph",["Text","This is a blockquote",["SoftLineBreak"]],"with multiple lines"]]]`,
 		},
 
 		// Headings (progressive levels)
@@ -126,14 +136,14 @@ func TestParseMarkdown(t *testing.T) {
 		{
 			name:     "unicode content",
 			markdown: "# Unicode Test\n\nHello 世界! 🌍\n\nThis has **émojis** and `código`.",
-			expected: `["Document",["Heading1","Unicode Test"],["Paragraph","Hello 世界","! 🌍"],["Paragraph","This has ",["Emphasis","émojis"]," and ",["CodeSpan","código"],"."]]`,
+			expected: `["Document",["Heading1","Unicode Test"],["Paragraph","Hello 世界","! 🌍"],["Paragraph","This has ",["Strong","émojis"]," and ",["CodeSpan","código"],"."]]`,
 		},
 
 		// Complex combined case
 		{
 			name:     "complex markdown",
 			markdown: "# Title\n\nThis is a **paragraph** with [links](http://example.com) and `code`.\n\n- List item 1\n- List item 2\n\n```python\nprint('Hello')\n```",
-			expected: `["Document",["Heading1","Title"],["Paragraph","This is a ",["Emphasis","paragraph"]," with ",["Link","links","http://example.com"]," and ",["CodeSpan","code"],"."],["List",["ListItem",["TextBlock","List item 1"]],["ListItem",["TextBlock","List item 2"]]],["FencedCodeBlock","python","print('Hello')\n"]]`,
+			expected: `["Document",["Heading1","Title"],["Paragraph","This is a ",["Strong","paragraph"]," with ",["Link","links","http://example.com"]," and ",["CodeSpan","code"],"."],["List",["ListItem",["TextBlock","List item 1"]],["ListItem",["TextBlock","List item 2"]]],["FencedCodeBlock","python","print('Hello')\n"]]`,
 		},
 	}
 
