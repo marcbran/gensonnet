@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParseMarkdownErrors(t *testing.T) {
+func TestManifestMarkdownErrors(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    []any
@@ -22,21 +22,11 @@ func TestParseMarkdownErrors(t *testing.T) {
 			input:    []any{"markdown", "extra"},
 			expected: "markdown must be provided",
 		},
-		{
-			name:     "non-string argument",
-			input:    []any{123},
-			expected: "markdown must be a string",
-		},
-		{
-			name:     "nil argument",
-			input:    []any{nil},
-			expected: "markdown must be a string",
-		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := ParseMarkdown().Func(tt.input)
+			result, err := ManifestMarkdown().Func(tt.input)
 
 			assert.Error(t, err)
 			assert.Nil(t, result)

@@ -7,19 +7,18 @@ import (
 	"github.com/marcbran/gensonnet/internal/fun/markdown"
 )
 
-func ParseMarkdown() *jsonnet.NativeFunction {
+func ManifestMarkdown() *jsonnet.NativeFunction {
 	return &jsonnet.NativeFunction{
-		Name:   "parseMarkdown",
+		Name:   "manifestMarkdown",
 		Params: ast.Identifiers{"markdown"},
 		Func: func(input []any) (any, error) {
 			if len(input) != 1 {
 				return nil, fmt.Errorf("markdown must be provided")
 			}
-			md, ok := input[0].(string)
-			if !ok {
-				return nil, fmt.Errorf("markdown must be a string")
+			out, err := markdown.ManifestAny(input[0])
+			if err != nil {
+				return nil, err
 			}
-			out := markdown.ParseString(md)
 			return out, nil
 		},
 	}

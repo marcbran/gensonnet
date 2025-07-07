@@ -18,16 +18,6 @@ lint:
 
     golangci-lint run
 
-build-dev:
-    #!/usr/bin/env bash
-    set -eu
-    goreleaser release --snapshot --clean --config .goreleaser.dev.yaml
-
-it: build-dev
-    #!/usr/bin/env bash
-    set -eu
-    ./dist/darwin_darwin_arm64_v8.0/gensonnet it
-
 build: test lint
     #!/usr/bin/env bash
     set -eu
