@@ -2,11 +2,12 @@ package markdown
 
 import (
 	"bytes"
+	"strings"
+
 	markdown "github.com/teekennedy/goldmark-markdown"
 	"github.com/yuin/goldmark"
 	mdast "github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/text"
-	"strings"
 )
 
 func ParseString(val string) any {
@@ -33,7 +34,7 @@ func Parse(node mdast.Node, source []byte) any {
 			attributes["blankPreviousLines"] = n.HasBlankPreviousLines()
 		}
 	case *mdast.Emphasis:
-		attributes["level"] = n.Level
+		attributes["level"] = float64(n.Level)
 	case *mdast.FencedCodeBlock:
 		if n.HasBlankPreviousLines() {
 			attributes["blankPreviousLines"] = n.HasBlankPreviousLines()
@@ -41,7 +42,7 @@ func Parse(node mdast.Node, source []byte) any {
 		attributes["language"] = string(n.Language(source))
 		value = linesValue(node, source)
 	case *mdast.Heading:
-		attributes["level"] = n.Level
+		attributes["level"] = float64(n.Level)
 	case *mdast.HTMLBlock:
 		if n.HasBlankPreviousLines() {
 			attributes["blankPreviousLines"] = n.HasBlankPreviousLines()
@@ -56,7 +57,7 @@ func Parse(node mdast.Node, source []byte) any {
 			attributes["blankPreviousLines"] = n.HasBlankPreviousLines()
 		}
 		attributes["marker"] = string(n.Marker)
-		attributes["start"] = n.Start
+		attributes["start"] = float64(n.Start)
 	case *mdast.ListItem:
 		if n.HasBlankPreviousLines() {
 			attributes["blankPreviousLines"] = n.HasBlankPreviousLines()
@@ -76,7 +77,7 @@ func Parse(node mdast.Node, source []byte) any {
 		if n.HardLineBreak() {
 			attributes["hardLineBreak"] = n.HardLineBreak()
 		}
-		value := string(n.Value(source))
+		value = string(n.Value(source))
 		if len(attributes) == 0 {
 			return value
 		}
@@ -153,19 +154,21 @@ func manifestRec(elem any, buffer *bytes.Buffer) (mdast.Node, error) {
 			if blankPreviousLines, ok := attributes["blankPreviousLines"].(bool); ok {
 				n.SetBlankPreviousLines(blankPreviousLines)
 			}
-			segments, err := addSegments(buffer, children[0].(string))
-			if err != nil {
-				return nil, err
+			if len(children) > 0 {
+				segments, err := addSegments(buffer, children[0].(string))
+				if err != nil {
+					return nil, err
+				}
+				n.SetLines(&segments)
 			}
-			n.SetLines(&segments)
 			children = nil
 		case *mdast.Document:
 			if blankPreviousLines, ok := attributes["blankPreviousLines"].(bool); ok {
 				n.SetBlankPreviousLines(blankPreviousLines)
 			}
 		case *mdast.Emphasis:
-			if level, ok := attributes["level"].(int); ok {
-				n.Level = level
+			if level, ok := attributes["level"].(float64); ok {
+				n.Level = int(level)
 			}
 		case *mdast.FencedCodeBlock:
 			if blankPreviousLines, ok := attributes["blankPreviousLines"].(bool); ok {
@@ -178,28 +181,32 @@ func manifestRec(elem any, buffer *bytes.Buffer) (mdast.Node, error) {
 				}
 				n.Info = mdast.NewTextSegment(segment)
 			}
-			segments, err := addSegments(buffer, children[0].(string))
-			if err != nil {
-				return nil, err
+			if len(children) > 0 {
+				segments, err := addSegments(buffer, children[0].(string))
+				if err != nil {
+					return nil, err
+				}
+				n.SetLines(&segments)
 			}
-			n.SetLines(&segments)
 			children = nil
 		case *mdast.Heading:
 			if blankPreviousLines, ok := attributes["blankPreviousLines"].(bool); ok {
 				n.SetBlankPreviousLines(blankPreviousLines)
 			}
-			if level, ok := attributes["level"].(int); ok {
-				n.Level = level
+			if level, ok := attributes["level"].(float64); ok {
+				n.Level = int(level)
 			}
 		case *mdast.HTMLBlock:
 			if blankPreviousLines, ok := attributes["blankPreviousLines"].(bool); ok {
 				n.SetBlankPreviousLines(blankPreviousLines)
 			}
-			segments, err := addSegments(buffer, children[0].(string))
-			if err != nil {
-				return nil, err
+			if len(children) > 0 {
+				segments, err := addSegments(buffer, children[0].(string))
+				if err != nil {
+					return nil, err
+				}
+				n.SetLines(&segments)
 			}
-			n.SetLines(&segments)
 			children = nil
 		case *mdast.Image:
 			if destination, ok := attributes["destination"].(string); ok {
@@ -216,8 +223,8 @@ func manifestRec(elem any, buffer *bytes.Buffer) (mdast.Node, error) {
 			if marker, ok := attributes["marker"].(string); ok {
 				n.Marker = marker[0]
 			}
-			if start, ok := attributes["start"].(int); ok {
-				n.Start = start
+			if start, ok := attributes["start"].(float64); ok {
+				n.Start = int(start)
 			}
 		case *mdast.ListItem:
 			if blankPreviousLines, ok := attributes["blankPreviousLines"].(bool); ok {
@@ -238,9 +245,11 @@ func manifestRec(elem any, buffer *bytes.Buffer) (mdast.Node, error) {
 			if hardLineBreak, ok := attributes["hardLineBreak"].(bool); ok {
 				n.SetHardLineBreak(hardLineBreak)
 			}
-			n.Segment, err = addSegment(buffer, children[0].(string))
-			if err != nil {
-				return nil, err
+			if len(children) > 0 {
+				n.Segment, err = addSegment(buffer, children[0].(string))
+				if err != nil {
+					return nil, err
+				}
 			}
 			children = nil
 		default:

@@ -83,18 +83,18 @@ func markdownTests() []struct {
 		{
 			name:     "soft line break",
 			markdown: "Hello, World!\nWelcome to my website!",
-			element:  `["Document",["Paragraph",{"blankPreviousLines":true},"Hello, World",["Text",{"softLineBreak":true}],"Welcome to my website","!"]]`,
+			element:  `["Document",["Paragraph",{"blankPreviousLines":true},"Hello, World",["Text",{"softLineBreak":true},"!"],"Welcome to my website","!"]]`,
 		},
 		{
 			name:      "hard line break",
 			markdown:  "Hello, World!  \nWelcome to my website!",
-			element:   `["Document",["Paragraph",{"blankPreviousLines":true},"Hello, World",["Text",{"hardLineBreak":true}],"Welcome to my website","!"]]`,
+			element:   `["Document",["Paragraph",{"blankPreviousLines":true},"Hello, World",["Text",{"hardLineBreak":true},"!"],"Welcome to my website","!"]]`,
 			canonical: "Hello, World!\\\nWelcome to my website!",
 		},
 		{
 			name:     "hard line break canonical",
 			markdown: "Hello, World!\\\nWelcome to my website!",
-			element:  `["Document",["Paragraph",{"blankPreviousLines":true},"Hello, World",["Text",{"hardLineBreak":true}],"Welcome to my website","!"]]`,
+			element:  `["Document",["Paragraph",{"blankPreviousLines":true},"Hello, World",["Text",{"hardLineBreak":true},"!"],"Welcome to my website","!"]]`,
 		},
 		{
 			name:     "inline code",
@@ -124,7 +124,7 @@ func markdownTests() []struct {
 		{
 			name:     "blockquote",
 			markdown: "> This is a blockquote\n> with multiple lines",
-			element:  `["Document",["Blockquote",{"blankPreviousLines":true},["Paragraph",{"blankPreviousLines":true},["Text",{"softLineBreak":true}],"with multiple lines"]]]`,
+			element:  `["Document",["Blockquote",{"blankPreviousLines":true},["Paragraph",{"blankPreviousLines":true},["Text",{"softLineBreak":true},"This is a blockquote"],"with multiple lines"]]]`,
 		},
 
 		// Headings (progressive levels)

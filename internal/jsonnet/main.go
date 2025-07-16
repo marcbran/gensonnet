@@ -1775,8 +1775,8 @@ func (f *FodderElement) UnmarshalJSON(data []byte) error {
 type ProxyNodeBase struct {
 	Fodder   Fodder          `json:"fodder"`
 	Ctx      ast.Context     `json:"context"`
-	FreeVars ast.Identifiers `json:"free_vars"`
-	LocRange LocationRange   `json:"loc_range"`
+	FreeVars ast.Identifiers `json:"freeVars"`
+	LocRange LocationRange   `json:"locRange"`
 }
 
 func NewProxyNodeBase(n ast.NodeBase) ProxyNodeBase {
@@ -1809,7 +1809,7 @@ func (l LocationRange) LocationRange() ast.LocationRange {
 
 type ProxyLocationRange struct {
 	File     *Source  `json:"file"`
-	FileName string   `json:"file_name"`
+	FileName string   `json:"fileName"`
 	Begin    Location `json:"begin"`
 	End      Location `json:"end"`
 }
@@ -1857,8 +1857,8 @@ func (s Source) Source() ast.Source {
 }
 
 type ProxySource struct {
-	DiagnosticFileName ast.DiagnosticFileName
-	Lines              []string
+	DiagnosticFileName ast.DiagnosticFileName `json:"diagnosticFileName"`
+	Lines              []string               `json:"lines"`
 }
 
 func (s Source) MarshalJSON() ([]byte, error) {

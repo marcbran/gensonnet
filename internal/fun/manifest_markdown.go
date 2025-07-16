@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/google/go-jsonnet"
 	"github.com/google/go-jsonnet/ast"
-	"github.com/marcbran/gensonnet/internal/fun/markdown"
+	"github.com/marcbran/gensonnet/internal/markdown"
 )
 
 func ManifestMarkdown() *jsonnet.NativeFunction {

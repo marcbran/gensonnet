@@ -2,16 +2,12 @@ package internal
 
 import (
 	"context"
+	"github.com/marcbran/gensonnet/pkg/gensonnet/config"
 	"os"
 	"path"
 )
 
-type RenderConfig struct {
-	TargetDir string    `json:"targetDir"`
-	Lib       LibConfig `json:"lib"`
-}
-
-func Render(ctx context.Context, config RenderConfig) error {
+func Render(ctx context.Context, config config.RenderConfig) error {
 	lib := NewLib(config.Lib)
 	files, err := lib.render()
 	if err != nil {

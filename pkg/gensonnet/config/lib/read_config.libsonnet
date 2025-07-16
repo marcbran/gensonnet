@@ -1,5 +1,3 @@
-local lib = import './lib.libsonnet';
-
 local defaults(manifestDir) = {
   render: {
     targetDir: manifestDir,

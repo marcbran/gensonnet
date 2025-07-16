@@ -1,27 +1,50 @@
-package internal
+package config
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"github.com/marcbran/jsonnet-kit/pkg/jsonnext"
 
 	"github.com/google/go-jsonnet"
-	"github.com/marcbran/gensonnet/internal/fun"
 )
 
-type ConfigLib struct {
-	manifestDir string
-}
+//go:embed lib
+var lib embed.FS
 
 type Config struct {
 	Render RenderConfig `json:"render"`
 	Serve  ServeConfig  `json:"serve"`
 }
 
-func NewConfig(
+type RenderConfig struct {
+	TargetDir string    `json:"targetDir"`
+	Lib       LibConfig `json:"lib"`
+}
+
+type ServeConfig struct {
+	Server ServerConfig `json:"server"`
+	Lib    LibConfig    `json:"lib"`
+}
+
+type ServerConfig struct {
+	Port           int               `json:"port"`
+	DirectoryIndex string            `json:"directoryIndex"`
+	StaticBaseDir  string            `json:"staticBaseDir"`
+	StaticFiles    map[string]string `json:"staticFiles"`
+}
+
+type LibConfig struct {
+	ManifestDir string   `json:"manifestDir"`
+	ManifestStr string   `json:"manifestStr"`
+	Jpath       []string `json:"jpath"`
+	Filesystems []embed.FS
+}
+
+func New(
 	manifestDir string,
 ) (Config, error) {
-	configLib := ConfigLib{
+	configLib := Lib{
 		manifestDir: manifestDir,
 	}
 	config, err := configLib.readConfig()
@@ -31,7 +54,11 @@ func NewConfig(
 	return config, nil
 }
 
-func (l ConfigLib) vm() *jsonnet.VM {
+type Lib struct {
+	manifestDir string
+}
+
+func (l Lib) vm() *jsonnet.VM {
 	vm := jsonnet.MakeVM()
 	vm.Importer(jsonnext.CompoundImporter{
 		Importers: []jsonnet.Importer{
@@ -39,12 +66,11 @@ func (l ConfigLib) vm() *jsonnet.VM {
 			&jsonnet.FileImporter{},
 		},
 	})
-	vm.NativeFunction(fun.FormatJsonnet())
 	vm.TLACode("manifest", fmt.Sprintf("import '%s/manifest.jsonnet'", l.manifestDir))
 	return vm
 }
 
-func (l ConfigLib) readConfig() (Config, error) {
+func (l Lib) readConfig() (Config, error) {
 	vm := l.vm()
 
 	vm.TLAVar("manifestDir", l.manifestDir)

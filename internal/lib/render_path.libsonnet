@@ -10,7 +10,7 @@ local renderPath(manifest, path, config, watch, segmentIndex=0) =
     local generate = std.get(
       libGenerator + std.get(manifest, 'generators', {}),
       lib.ext(file),
-      function(value) std.manifestJson(value)
+      function(value) if std.type(value) == 'string' then value else std.manifestJson(value)
     );
     generate(manifest.directory[file]);
 

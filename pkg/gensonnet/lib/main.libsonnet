@@ -1,7 +1,7 @@
 {
   formatJsonnet(code): std.native('formatJsonnet')(code),
-  manifestJsonnet(code): std.native('manifestJsonnet')(code),
-  parseJsonnet(code): std.native('parseJsonnet')(code),
-  manifestMarkdown(code): std.native('manifestMarkdown')(code),
-  parseMarkdown(code): std.native('parseMarkdown')(code),
+  manifestJsonnet(jsonnet): std.native('manifestJsonnet')(jsonnet),
+  parseJsonnet(jsonnet): std.native('parseJsonnet')(jsonnet),
+  manifestMarkdown(markdown): std.native('manifestMarkdown')(markdown),
+  parseMarkdown(markdown): std.native('parseMarkdown')(markdown),
 }

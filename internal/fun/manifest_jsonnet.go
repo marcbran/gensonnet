@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/google/go-jsonnet"
 	"github.com/google/go-jsonnet/ast"
-	intjsonnet "github.com/marcbran/gensonnet/internal/fun/jsonnet"
+	intjsonnet "github.com/marcbran/gensonnet/internal/jsonnet"
 )
 
 func ManifestJsonnet() *jsonnet.NativeFunction {

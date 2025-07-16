@@ -18,6 +18,9 @@ local generators = {
   '.yaml'(data): self['.yml'](data),
   '.htm'(data): '<!doctype html>' + std.manifestXmlJsonml(data),
   '.html'(data): self['.htm'](data),
+  '.jsonnet'(data): std.native('manifestJsonnet')(data),
+  '.libsonnet'(data): self['.jsonnet'](data),
+  '.md'(data): std.native('manifestMarkdown')(data),
 };
 
 local watchScript(path, config) = std.manifestXmlJsonml(

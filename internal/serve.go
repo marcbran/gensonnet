@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/marcbran/gensonnet/pkg/gensonnet/config"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,19 +18,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type ServeConfig struct {
-	Server ServerConfig `json:"server"`
-	Lib    LibConfig    `json:"lib"`
-}
-
-type ServerConfig struct {
-	Port           int               `json:"port"`
-	DirectoryIndex string            `json:"directoryIndex"`
-	StaticBaseDir  string            `json:"staticBaseDir"`
-	StaticFiles    map[string]string `json:"staticFiles"`
-}
-
-func Serve(ctx context.Context, config ServeConfig) error {
+func Serve(ctx context.Context, config config.ServeConfig) error {
 	reloadCh := make(chan struct{}, 1)
 	broadcaster := Broadcaster{}
 
@@ -117,7 +106,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func runServer(ctx context.Context, config ServeConfig, reloadBroadcaster *Broadcaster) error {
+func runServer(ctx context.Context, config config.ServeConfig, reloadBroadcaster *Broadcaster) error {
 	mux := http.NewServeMux()
 
 	for endpoint, filePath := range config.Server.StaticFiles {
