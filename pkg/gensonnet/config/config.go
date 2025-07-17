@@ -35,10 +35,11 @@ type ServerConfig struct {
 }
 
 type LibConfig struct {
-	ManifestDir string   `json:"manifestDir"`
-	ManifestStr string   `json:"manifestStr"`
-	Jpath       []string `json:"jpath"`
-	Filesystems []embed.FS
+	ManifestDir  string   `json:"manifestDir"`
+	ManifestCode string   `json:"manifestStr"`
+	Jpath        []string `json:"jpath"`
+	Filesystems  []embed.FS
+	Imports      map[string]string `json:"imports"`
 }
 
 func New(
