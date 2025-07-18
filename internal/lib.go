@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/go-jsonnet"
-	"github.com/marcbran/jsonnet-kit/pkg/jsonnext"
+	"github.com/marcbran/devsonnet/pkg/jsonnext"
 )
 
 //go:embed lib

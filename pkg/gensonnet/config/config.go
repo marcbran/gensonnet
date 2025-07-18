@@ -4,7 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"github.com/marcbran/jsonnet-kit/pkg/jsonnext"
+	"github.com/marcbran/devsonnet/pkg/jsonnext"
 
 	"github.com/google/go-jsonnet"
 )
