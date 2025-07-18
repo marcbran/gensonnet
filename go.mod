@@ -3,7 +3,7 @@ module github.com/marcbran/gensonnet
 go 1.24.4
 
 require (
-	github.com/fsnotify/fsnotify v1.8.0
+	github.com/fsnotify/fsnotify v1.9.0
 	github.com/google/go-jsonnet v0.21.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/marcbran/devsonnet v0.9.1-0.20250717162135-453267a5146b
