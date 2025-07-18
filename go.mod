@@ -12,7 +12,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/teekennedy/goldmark-markdown v0.5.1
 	github.com/yuin/goldmark v1.7.12
-	golang.org/x/sync v0.12.0
+	golang.org/x/sync v0.16.0
 )
 
 require (
