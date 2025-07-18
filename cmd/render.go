@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/marcbran/gensonnet/internal"
+	"github.com/marcbran/gensonnet/pkg/gensonnet/config"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ var renderCmd = &cobra.Command{
 		if len(args) > 0 {
 			dirname = args[0]
 		}
-		config, err := internal.NewConfig(dirname)
+		config, err := config.New(dirname)
 		if err != nil {
 			return err
 		}
