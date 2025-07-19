@@ -52,7 +52,7 @@ func (l Lib) vm() *jsonnet.VM {
 	importers := []jsonnet.Importer{
 		&jsonnext.FSImporter{Fs: lib},
 		&jsonnet.FileImporter{JPaths: paths},
-		&jsonnet.MemoryImporter{Data: contents},
+		&jsonnext.MemoryImporter{Data: contents},
 	}
 	for _, fs := range l.filesystems {
 		importers = append(importers, &jsonnext.FSImporter{Fs: fs})
