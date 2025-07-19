@@ -1,11 +1,10 @@
 set fallback := true
 
 test:
-    #!/usr/bin/env bash
+    @devsonnet test
 
-    jsonnet-kit test
+build: test
+    @devsonnet build
 
-release: test
-    #!/usr/bin/env bash
-
-    jsonnet-kit release -r https://github.com/marcbran/jsonnet.git -b "markdown" -p "markdown" "."
+push: build
+    @devsonnet push
