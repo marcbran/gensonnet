@@ -6,7 +6,7 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/google/go-jsonnet v0.21.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/marcbran/devsonnet v0.10.1-0.20250719075438-e66ded2bbeba
+	github.com/marcbran/devsonnet v0.11.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
